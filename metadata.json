@@ -1,0 +1,7 @@
+{
+  "name": "Trainer For You",
+  "description": "เกมดูแลสุขภาพและจัดการน้ำหนักสไตล์ Cozy Adventure สำหรับนักศึกษา พร้อมระบบสัตว์เลี้ยงคู่ใจและ AI Food Analyzer",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
