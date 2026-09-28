@@ -8,12 +8,16 @@ interface FoodAnalyzerModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSaveFoodLog: (log: Omit<FoodLog, 'id' | 'timestamp'>) => void;
+  dailyTargetCal?: number;
+  currentCaloriesEaten?: number;
 }
 
 export const FoodAnalyzerModal: React.FC<FoodAnalyzerModalProps> = ({
   isOpen,
   onClose,
   onSaveFoodLog,
+  dailyTargetCal = 1600,
+  currentCaloriesEaten = 0,
 }) => {
   const [inputText, setInputText] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -620,7 +624,7 @@ export const FoodAnalyzerModal: React.FC<FoodAnalyzerModalProps> = ({
                 ))}
               </div>
 
-              {/* Total Summary Bar */}
+              {/* Total Summary Bar & Remaining Calorie Calculation */}
               <div className="p-3 bg-gradient-to-r from-pink-50 to-purple-50 rounded-2xl border border-pink-200">
                 <div className="text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
                   <span>📊 รวมทั้งมื้อนี้:</span>
@@ -642,6 +646,30 @@ export const FoodAnalyzerModal: React.FC<FoodAnalyzerModalProps> = ({
                     <span className="font-bold text-emerald-600">{totals.fat} g</span>
                   </div>
                 </div>
+
+                {/* Quota prediction box: สมมุติว่ากินมื้อนี้ วันนี้เหลือกินได้เท่าไหร่ */}
+                {(() => {
+                  const projectedTotalEaten = currentCaloriesEaten + totals.calories;
+                  const projectedRemaining = dailyTargetCal - projectedTotalEaten;
+                  return (
+                    <div className="mt-2.5 pt-2.5 border-t border-pink-200/80 flex items-center justify-between text-xs">
+                      <span className="text-slate-600 font-bold flex items-center gap-1">
+                        <span>✨ หากทานมื้อนี้ วันนี้จะเหลือกินได้:</span>
+                      </span>
+                      <span
+                        className={`font-black text-sm px-2 py-0.5 rounded-xl ${
+                          projectedRemaining >= 0
+                            ? 'bg-emerald-100/80 text-emerald-700'
+                            : 'bg-rose-100/80 text-rose-600'
+                        }`}
+                      >
+                        {projectedRemaining >= 0
+                          ? `เหลืออีก ${projectedRemaining.toLocaleString()} kcal`
+                          : `เกินเป้า ${Math.abs(projectedRemaining).toLocaleString()} kcal`}
+                      </span>
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Reward Bonus Notification */}

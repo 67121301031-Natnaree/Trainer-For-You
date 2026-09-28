@@ -8,17 +8,29 @@ import { soundManager } from '../services/sound';
 
 interface WelcomeScreenProps {
   onStartAdventure: (profile: UserProfile, petId: PetId) => void;
+  initialProfile?: UserProfile | null;
+  initialPet?: PetId;
 }
 
-export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStartAdventure }) => {
-  const [nickname, setNickname] = useState('');
-  const [age, setAge] = useState<number | ''>(20);
-  const [gender, setGender] = useState<'female' | 'male' | 'other'>('female');
-  const [currentWeight, setCurrentWeight] = useState<number | ''>(58);
-  const [height, setHeight] = useState<number | ''>(165);
-  const [targetWeight, setTargetWeight] = useState<number | ''>(54);
-  const [activityLevel, setActivityLevel] = useState<ActivityLevel>('moderate');
-  const [selectedPet, setSelectedPet] = useState<PetId>('rabbit');
+export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
+  onStartAdventure,
+  initialProfile,
+  initialPet = 'rabbit',
+}) => {
+  const [nickname, setNickname] = useState(initialProfile?.nickname || '');
+  const [age, setAge] = useState<number | ''>(initialProfile?.age || 20);
+  const [gender, setGender] = useState<'female' | 'male'>(initialProfile?.gender || 'female');
+  const [currentWeight, setCurrentWeight] = useState<number | ''>(
+    initialProfile?.currentWeight || 58
+  );
+  const [height, setHeight] = useState<number | ''>(initialProfile?.height || 165);
+  const [targetWeight, setTargetWeight] = useState<number | ''>(
+    initialProfile?.targetWeight || 54
+  );
+  const [activityLevel, setActivityLevel] = useState<ActivityLevel>(
+    initialProfile?.activityLevel || 'moderate'
+  );
+  const [selectedPet, setSelectedPet] = useState<PetId>(initialPet);
   const [errorMsg, setErrorMsg] = useState('');
 
   const petKeys = Object.keys(PETS) as PetId[];
@@ -204,22 +216,21 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStartAdventure }
               {/* Gender for BMR calculation */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  เพศกำเนิด (สำหรับคำนวณ BMR อัตราเผาผลาญ) <span className="text-pink-500">*</span>
+                  เพศ (สำหรับคำนวณการเผาผลาญ BMR) <span className="text-pink-500">*</span>
                 </label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   {[
                     { id: 'female', label: 'หญิง 👩' },
                     { id: 'male', label: 'ชาย 👨' },
-                    { id: 'other', label: 'ทั่วไป ✨' },
                   ].map((g) => (
                     <button
                       key={g.id}
                       type="button"
                       onClick={() => {
                         soundManager.playPop();
-                        setGender(g.id as any);
+                        setGender(g.id as 'female' | 'male');
                       }}
-                      className={`py-2 px-3 rounded-2xl text-xs font-bold border transition-all ${
+                      className={`py-2 px-3 rounded-2xl text-xs font-bold border transition-all cursor-pointer ${
                         gender === g.id
                           ? 'bg-gradient-to-r from-pink-500 to-rose-400 text-white border-pink-500 shadow-xs'
                           : 'bg-white text-slate-600 border-slate-200 hover:border-pink-200'

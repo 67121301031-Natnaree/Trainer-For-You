@@ -12,6 +12,7 @@ interface HealthProfileModalProps {
   currentWeight: number;
   onUpdateProfile: (updated: UserProfile) => void;
   onResetAllData: () => void;
+  onOpenWelcomeScreen?: () => void;
 }
 
 export const HealthProfileModal: React.FC<HealthProfileModalProps> = ({
@@ -21,11 +22,12 @@ export const HealthProfileModal: React.FC<HealthProfileModalProps> = ({
   currentWeight,
   onUpdateProfile,
   onResetAllData,
+  onOpenWelcomeScreen,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [nickname, setNickname] = useState(profile?.nickname || '');
   const [age, setAge] = useState<number>(profile?.age || 20);
-  const [gender, setGender] = useState<'female' | 'male' | 'other'>(profile?.gender || 'female');
+  const [gender, setGender] = useState<'female' | 'male'>(profile?.gender === 'male' ? 'male' : 'female');
   const [height, setHeight] = useState<number>(profile?.height || 165);
   const [targetWeight, setTargetWeight] = useState<number>(profile?.targetWeight || 55);
   const [activityLevel, setActivityLevel] = useState<ActivityLevel>(
@@ -100,16 +102,33 @@ export const HealthProfileModal: React.FC<HealthProfileModalProps> = ({
                 อายุ {profile.age} ปี • ส่วนสูง {profile.height} ซม.
               </div>
             </div>
-            <button
-              onClick={() => {
-                soundManager.playPop();
-                setIsEditing(!isEditing);
-              }}
-              className="px-3 py-1.5 bg-white text-pink-600 rounded-xl border border-pink-200 text-xs font-bold shadow-xs hover:bg-pink-50 transition-colors flex items-center gap-1"
-            >
-              <Edit2 className="w-3.5 h-3.5" />
-              {isEditing ? 'ยกเลิกแก้ไข' : 'แก้ไขข้อมูล'}
-            </button>
+            <div className="flex items-center gap-1.5">
+              {onOpenWelcomeScreen && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundManager.playPop();
+                    onClose();
+                    onOpenWelcomeScreen();
+                  }}
+                  className="px-2.5 py-1.5 bg-purple-50 text-purple-700 rounded-xl border border-purple-200 text-xs font-bold shadow-xs hover:bg-purple-100 transition-colors flex items-center gap-1"
+                  title="เปิดหน้ากรอกข้อมูลเริ่มต้นใหม่"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+                  <span>หน้ากรอกข้อมูล</span>
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  soundManager.playPop();
+                  setIsEditing(!isEditing);
+                }}
+                className="px-3 py-1.5 bg-white text-pink-600 rounded-xl border border-pink-200 text-xs font-bold shadow-xs hover:bg-pink-50 transition-colors flex items-center gap-1"
+              >
+                <Edit2 className="w-3.5 h-3.5" />
+                {isEditing ? 'ยกเลิกแก้ไข' : 'แก้ไขข้อมูล'}
+              </button>
+            </div>
           </div>
 
           {/* Edit Profile Inline Form */}
@@ -170,21 +189,20 @@ export const HealthProfileModal: React.FC<HealthProfileModalProps> = ({
               {/* Gender selector for accurate BMR calculation */}
               <div>
                 <label className="block text-[11px] font-semibold text-slate-500 mb-1">
-                  เพศกำเนิด (สำหรับคำนวณ BMR สูตรมาตรฐาน Mifflin-St Jeor)
+                  เพศ (สำหรับคำนวณการเผาผลาญ BMR)
                 </label>
-                <div className="grid grid-cols-3 gap-1.5 text-xs">
+                <div className="grid grid-cols-2 gap-2 text-xs">
                   {[
                     { id: 'female', label: 'หญิง 👩' },
                     { id: 'male', label: 'ชาย 👨' },
-                    { id: 'other', label: 'ทั่วไป ✨' },
                   ].map((g) => (
                     <button
                       key={g.id}
                       type="button"
-                      onClick={() => setGender(g.id as any)}
-                      className={`py-1.5 px-2 rounded-xl font-bold border transition-colors ${
+                      onClick={() => setGender(g.id as 'female' | 'male')}
+                      className={`py-1.5 px-3 rounded-xl font-bold border transition-colors cursor-pointer ${
                         gender === g.id
-                          ? 'bg-pink-500 text-white border-pink-500'
+                          ? 'bg-pink-500 text-white border-pink-500 shadow-xs'
                           : 'bg-white text-slate-600 border-slate-200 hover:border-pink-200'
                       }`}
                     >

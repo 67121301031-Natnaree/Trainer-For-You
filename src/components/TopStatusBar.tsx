@@ -1,27 +1,31 @@
 import React from 'react';
-import { Sparkles, Trophy, Coins, Volume2, VolumeX, User, BookOpen, ShoppingBag } from 'lucide-react';
+import { Sparkles, Trophy, Coins, User, BookOpen, ShoppingBag } from 'lucide-react';
 import { soundManager } from '../services/sound';
 
 interface TopStatusBarProps {
   level: number;
   xp: number;
   coins: number;
-  soundEnabled: boolean;
-  onToggleSound: () => void;
+  soundEnabled?: boolean;
+  activeTab?: 'petProfile' | 'game' | 'dailyLog';
+  onChangeTab?: (tab: 'petProfile' | 'game' | 'dailyLog') => void;
+  onToggleSound?: () => void;
   onOpenProfile: () => void;
   onOpenShop: () => void;
   onOpenBook: () => void;
+  onOpenWelcomeScreen?: () => void;
 }
 
 export const TopStatusBar: React.FC<TopStatusBarProps> = ({
   level,
   xp,
   coins,
-  soundEnabled,
-  onToggleSound,
+  activeTab = 'petProfile',
+  onChangeTab,
   onOpenProfile,
   onOpenShop,
   onOpenBook,
+  onOpenWelcomeScreen,
 }) => {
   // Current progress in this level (0-99)
   const currentLevelXp = xp % 100;
@@ -47,6 +51,18 @@ export const TopStatusBar: React.FC<TopStatusBarProps> = ({
 
           {/* Mobile Right action shortcuts */}
           <div className="flex items-center gap-1.5 sm:hidden">
+            {onOpenWelcomeScreen && (
+              <button
+                onClick={() => {
+                  soundManager.playPop();
+                  onOpenWelcomeScreen();
+                }}
+                className="p-1.5 rounded-full bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors"
+                title="หน้ากรอกข้อมูลเริ่มต้น"
+              >
+                <Sparkles className="w-4 h-4" />
+              </button>
+            )}
             <button
               onClick={() => {
                 soundManager.playPop();
@@ -76,13 +92,6 @@ export const TopStatusBar: React.FC<TopStatusBarProps> = ({
               title="โปรไฟล์สุขภาพ"
             >
               <User className="w-4 h-4" />
-            </button>
-            <button
-              onClick={onToggleSound}
-              className="p-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
-              title={soundEnabled ? 'ปิดเสียง' : 'เปิดเสียง'}
-            >
-              {soundEnabled ? <Volume2 className="w-4 h-4 text-pink-500" /> : <VolumeX className="w-4 h-4 text-slate-400" />}
             </button>
           </div>
         </div>
@@ -123,6 +132,19 @@ export const TopStatusBar: React.FC<TopStatusBarProps> = ({
 
           {/* Desktop quick links */}
           <div className="hidden sm:flex items-center gap-2">
+            {onOpenWelcomeScreen && (
+              <button
+                onClick={() => {
+                  soundManager.playPop();
+                  onOpenWelcomeScreen();
+                }}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-purple-100/70 hover:bg-purple-200 text-purple-800 text-xs font-bold transition-all shadow-xs cursor-pointer"
+                title="เปิดหน้ากรอกข้อมูลตั้งต้น"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+                <span>หน้ากรอกข้อมูล</span>
+              </button>
+            )}
             <button
               onClick={() => {
                 soundManager.playPop();
@@ -148,20 +170,65 @@ export const TopStatusBar: React.FC<TopStatusBarProps> = ({
                 soundManager.playPop();
                 onOpenProfile();
               }}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-pink-100/70 hover:bg-pink-200 text-pink-800 text-xs font-bold transition-all shadow-xs"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-pink-100/70 hover:bg-pink-200 text-pink-800 text-xs font-bold transition-all shadow-xs cursor-pointer"
             >
               <User className="w-3.5 h-3.5 text-pink-600" />
               โปรไฟล์
             </button>
-            <button
-              onClick={onToggleSound}
-              className="p-2 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors"
-              title={soundEnabled ? 'ปิดเสียง' : 'เปิดเสียง'}
-            >
-              {soundEnabled ? <Volume2 className="w-4 h-4 text-pink-500" /> : <VolumeX className="w-4 h-4 text-slate-400" />}
-            </button>
           </div>
         </div>
+
+        {/* 3 Main Menu Tabs: 1. โปรไฟล์สัตว์เลี้ยง, 2. เส้นทางก้าวเดิน (เกม), 3. บันทึกประจำวัน */}
+        {onChangeTab && (
+          <div className="w-full pt-1.5 flex items-center justify-center">
+            <nav className="flex items-center gap-1 p-1 bg-pink-100/60 rounded-2xl border border-pink-200/80 shadow-2xs w-full sm:w-auto max-w-md">
+              <button
+                onClick={() => {
+                  soundManager.playPop();
+                  onChangeTab('petProfile');
+                }}
+                className={`flex-1 sm:flex-initial px-3 sm:px-4 py-1.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  activeTab === 'petProfile'
+                    ? 'bg-white text-pink-600 shadow-xs border border-pink-100 scale-[1.02]'
+                    : 'text-slate-600 hover:text-pink-600 hover:bg-white/50'
+                }`}
+              >
+                <span>🐰</span>
+                <span className="truncate">โปรไฟล์สัตว์เลี้ยง</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  soundManager.playPop();
+                  onChangeTab('game');
+                }}
+                className={`flex-1 sm:flex-initial px-3 sm:px-4 py-1.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  activeTab === 'game'
+                    ? 'bg-white text-purple-600 shadow-xs border border-purple-100 scale-[1.02]'
+                    : 'text-slate-600 hover:text-purple-600 hover:bg-white/50'
+                }`}
+              >
+                <span>🗺️</span>
+                <span className="truncate">เกมเส้นทางก้าวเดิน</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  soundManager.playPop();
+                  onChangeTab('dailyLog');
+                }}
+                className={`flex-1 sm:flex-initial px-3 sm:px-4 py-1.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  activeTab === 'dailyLog'
+                    ? 'bg-white text-sky-600 shadow-xs border border-sky-100 scale-[1.02]'
+                    : 'text-slate-600 hover:text-sky-600 hover:bg-white/50'
+                }`}
+              >
+                <span>📝</span>
+                <span className="truncate">บันทึกประจำวัน</span>
+              </button>
+            </nav>
+          </div>
+        )}
       </div>
     </header>
   );
